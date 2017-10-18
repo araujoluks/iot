@@ -1,25 +1,9 @@
-/*
-  Web client
-
- This sketch connects to a website (http://www.google.com)
- using an Arduino Wiznet Ethernet shield.
-
- Circuit:
- * Ethernet shield attached to pins 10, 11, 12, 13
-
- created 18 Dec 2009
- by David A. Mellis
- modified 9 Apr 2012
- by Tom Igoe, based on work by Adrian McEwen
-
- */
-
-
 //#include <ArduinoJson.h>
 
 #include <SPI.h>
 #include <UIPEthernet.h>
-#include <utility/logging.h>
+
+#include <PubSubClient.h>
 
 
 // Enter a MAC address for your controller below.
