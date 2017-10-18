@@ -57,6 +57,7 @@ void setup()
 
   if (client.connect("arduinoClient")) {
     client.publish("outTopic","hello world");
+    client.setCallback(callback); 
     client.subscribe("inTopic");
   }
 
