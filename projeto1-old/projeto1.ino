@@ -14,14 +14,18 @@ char userId[] = "luksde.araujo@gmail.com"; // use your DIoTY user id (=email add
 char passwd[] = "70df3401";  // use your DIoTY password
 char server[] = "mqtt.dioty.co";
 unsigned int port = 1883;
-char topic[] = "/luksde.araujo@gmail.com/buttonPushed"; // topic where to publish; must be under your root topic
+char topic[] = "/luksde.araujo@gmail.com/comandoPortao"; // topic where to publish; must be under your root topic
 EthernetClient client;
-PubSubClient arduinoClient(server, port, 0, client) ; //no callback function is specified as we only publish
+
+void callback(char* topic, byte* payload, unsigned int length);
+
+PubSubClient arduinoClient(server, port, callback, client);
 
 
 void setup() {
   Serial.begin(9600);
   DEBUG_PRINT(F("Initialisation"));
+  
   beginConnection();
 }
 
@@ -40,6 +44,8 @@ void beginConnection() {
     Serial.flush();
     reConnect();
   }
+
+  arduinoClient.subscribe(topic);
 }
 
 // reconnect after network hiccup
@@ -59,14 +65,38 @@ void reConnect() {
     } else {
       Serial.println(F("Failed to connect to the MQTT Server"));
     }
-  };
+  }
+
+  arduinoClient.subscribe(topic);
+  
 }
 
-int i = 0;
+void callback(char* topic, byte* payload, unsigned int length) {
+  Serial.print("Message arrived [");
+  Serial.print(topic);
+  Serial.print("] ");
+  for (int i = 0; i < length; i++) {
+    Serial.print((char)payload[i]);
+  }
+  Serial.println();
+
+  /*
+  // Switch on the LED if an 1 was received as first character
+  if ((char)payload[0] == '1') {
+    digitalWrite(BUILTIN_LED, LOW);   // Turn the LED on (Note that LOW is the voltage level
+    // but actually the LED is on; this is because
+    // it is acive low on the ESP-01)
+  } else {
+    digitalWrite(BUILTIN_LED, HIGH);  // Turn the LED off by making the voltage HIGH
+  }
+  */
+}
+
 
 void loop(void) {
+  bool loop = arduinoClient.loop();
 
-  if (arduinoClient.loop()) {
+  if (loop) {
     DEBUG_PRINT(F("Arduino Client loop ok"));
 
     /*
@@ -83,22 +113,12 @@ void loop(void) {
     //getTemp();
     //dtostrf(((float)(Whole*100+Fract)/100),1,2, buf);
 
-    arduinoClient.publish(topic, i, 1, 1);
+    //arduinoClient.publish(topic, i, 1, 1);
+    
+    
 
 
-    i++;
-    delay(2000); \
-    /*
-      if (strcmp (buf,lastPublished) == 0) {
-      DEBUG_PRINT(F("temp not changed"));
-      DEBUG_PRINT(buf);
-      } else {
-      arduinoClient.publish(topic, (uint8_t*) buf, strlen(buf), 1);
-      memcpy(lastPublished, buf, 10);
-      DEBUG_PRINT(buf);
-      };
-    */
-
+    delay(500);
 
 
   } else {
